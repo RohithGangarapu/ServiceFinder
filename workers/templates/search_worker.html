@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Workers Near You</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+        .search-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+        .search-container input,
+        .search-container select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .search-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .search-container button:hover {
+            background-color: #45a049;
+        }
+        #map {
+            height: 300px;
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .worker-details {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Find Workers Near You</h1>
+    </header>
+    <div class="search-container">
+        <input type="text" id="profession" placeholder="Enter profession (e.g., Plumber, Electrician)">
+        <button onclick="searchWorkers()">Search Workers</button>
+        <div id="map"></div>
+        <div class="worker-details" id="worker-details">
+            <h3 id="worker-name"></h3>
+            <p id="worker-profession"></p>
+            <p id="worker-phone"></p>
+            <p id="worker-location"></p>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let map;
+        let userLatitude, userLongitude;
+
+        // Initialize the map and detect user's location
+        function initMap(lat, lng) {
+            map = L.map('map').setView([lat, lng], 13); // Set initial view to user's location
+
+            // Add a tile layer (map background)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Add a marker for the user's location
+            L.marker([lat, lng]).addTo(map)
+                .bindPopup('Your Location')
+                .openPopup();
+        }
+
+        // Detect user's location using Geolocation API
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    userLatitude = position.coords.latitude;
+                    userLongitude = position.coords.longitude;
+                    initMap(userLatitude, userLongitude); // Initialize map with user's location
+                },
+                (error) => {
+                    alert("Unable to retrieve your location. Please enable location access.");
+                }
+            );
+        } else {
+            alert("Geolocation is not supported by your browser.");
+        }
+
+        // Fetch workers from Django backend
+        function searchWorkers() {
+            const profession = document.getElementById("profession").value;
+            if (!profession) {
+                alert("Please enter a profession.");
+                return;
+            }
+
+            // Fetch worker data from Django
+            fetch(`/search-workers/?profession=${profession}`)
+                .then((response) => response.json())
+                .then((workers) => {
+                    // Clear previous markers
+                    map.eachLayer((layer) => {
+                        if (layer instanceof L.Marker) {
+                            map.removeLayer(layer);
+                        }
+                    });
+
+                    // Add markers for workers
+                    workers.forEach((worker) => {
+                        const marker = L.marker([worker.latitude, worker.longitude]).addTo(map)
+                            .bindPopup(`<b>${worker.name}</b><br>${worker.profession}`);
+
+                        // Show worker details when marker is clicked
+                        marker.on('click', () => {
+                            document.getElementById("worker-name").innerText = worker.name;
+                            document.getElementById("worker-profession").innerText = `Profession: ${worker.profession}`;
+                            document.getElementById("worker-phone").innerText = `Phone: ${worker.phone}`;
+                            document.getElementById("worker-location").innerText = `Location: ${worker.location}`;
+                            document.getElementById("worker-details").style.display = "block";
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error fetching workers:", error);
+                });
+        }
+    </script>
+</body>
+</html>

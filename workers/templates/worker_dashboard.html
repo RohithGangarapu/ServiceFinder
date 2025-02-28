@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Worker Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, {{ request.user.username }}!</h1>
+    <h2>Your Service Requests</h2>
+    <ul>
+        {% for request in requests %}
+            <li>{{ request.customer.user.username }} - {{ request.service_type }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
