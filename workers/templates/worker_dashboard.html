@@ -1,15 +1,81 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Worker Dashboard</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .service-request {
+            background: white;
+            padding: 15px;
+            margin: 10px auto;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        .service-request p {
+            margin: 5px 0;
+        }
+        .accept-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .accept-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
     <h1>Welcome, {{ request.user.username }}!</h1>
     <h2>Your Service Requests</h2>
-    <ul>
-        {% for request in requests %}
-            <li>{{ request.customer.user.username }} - {{ request.service_type }}</li>
+
+    {% if requests %}
+        {% for req in requests %}
+            <div class="service-request">
+                <p><strong>Customer:</strong> {{ req.customer }}</p>
+                <p><strong>Service Type:</strong> {{ req.service_type }}</p>
+                <p><strong>Description:</strong> {{ req.description }}</p>
+                <p><strong>Status:</strong> <span id="status-{{ req.customer }}-{{ req.service_type }}">{{ req.status }}</span></p>
+                
+                {% if req.status == "Pending" %}
+                    <button class="accept-btn" onclick="acceptOrder('{{ request.user.username }}', '{{ req.customer }}', '{{ req.service_type }}')">
+                        Accept Order
+                    </button>
+                {% endif %}
+            </div>
         {% endfor %}
-    </ul>
+    {% else %}
+        <p>No service requests at the moment.</p>
+    {% endif %}
+
+    <script>
+        function acceptOrder(workerUsername, customerUsername, serviceType) {
+            fetch(`/accept-order/${workerUsername}/${customerUsername}/${serviceType}/`, { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    document.getElementById(`status-${customerUsername}-${serviceType}`).innerText = "Accepted";
+                })
+                .catch(error => console.error("Error:", error));
+        }
+    </script>
 </body>
 </html>

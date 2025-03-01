@@ -25,10 +25,6 @@
             text-align: center;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        header h1 {
-            margin: 0;
-            font-size: 2rem;
-        }
         .search-container {
             background: white;
             padding: 20px;
@@ -38,8 +34,7 @@
             max-width: 600px;
             margin-top: 20px;
         }
-        .search-container input,
-        .search-container select {
+        .search-container input {
             width: 100%;
             padding: 10px;
             margin-bottom: 15px;
@@ -73,7 +68,29 @@
             background: white;
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            display: none; /* Hidden by default */
+            display: none;
+            text-align: center;
+        }
+        .worker-details button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .call-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .whatsapp-btn {
+            background-color: #25D366;
+            color: white;
+        }
+        .book-btn {
+            background-color: #FF5733;
+            color: white;
         }
     </style>
 </head>
@@ -90,6 +107,9 @@
             <p id="worker-profession"></p>
             <p id="worker-phone"></p>
             <p id="worker-location"></p>
+            <button class="call-btn" id="call-btn">📞 Call Worker</button>
+            <button class="whatsapp-btn" id="whatsapp-btn">💬 Message on WhatsApp</button>
+            <button class="book-btn" id="book-btn">📌 Book Worker</button>
         </div>
     </div>
 
@@ -99,28 +119,24 @@
         let map;
         let userLatitude, userLongitude;
 
-        // Initialize the map and detect user's location
         function initMap(lat, lng) {
-            map = L.map('map').setView([lat, lng], 13); // Set initial view to user's location
+            map = L.map('map').setView([lat, lng], 13);
 
-            // Add a tile layer (map background)
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
 
-            // Add a marker for the user's location
             L.marker([lat, lng]).addTo(map)
                 .bindPopup('Your Location')
                 .openPopup();
         }
 
-        // Detect user's location using Geolocation API
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     userLatitude = position.coords.latitude;
                     userLongitude = position.coords.longitude;
-                    initMap(userLatitude, userLongitude); // Initialize map with user's location
+                    initMap(userLatitude, userLongitude);
                 },
                 (error) => {
                     alert("Unable to retrieve your location. Please enable location access.");
@@ -130,7 +146,6 @@
             alert("Geolocation is not supported by your browser.");
         }
 
-        // Fetch workers from Django backend
         function searchWorkers() {
             const profession = document.getElementById("profession").value;
             if (!profession) {
@@ -138,29 +153,44 @@
                 return;
             }
 
-            // Fetch worker data from Django
             fetch(`/search-workers/?profession=${profession}`)
                 .then((response) => response.json())
                 .then((workers) => {
-                    // Clear previous markers
                     map.eachLayer((layer) => {
                         if (layer instanceof L.Marker) {
                             map.removeLayer(layer);
                         }
                     });
 
-                    // Add markers for workers
                     workers.forEach((worker) => {
                         const marker = L.marker([worker.latitude, worker.longitude]).addTo(map)
                             .bindPopup(`<b>${worker.name}</b><br>${worker.profession}`);
 
-                        // Show worker details when marker is clicked
                         marker.on('click', () => {
                             document.getElementById("worker-name").innerText = worker.name;
                             document.getElementById("worker-profession").innerText = `Profession: ${worker.profession}`;
                             document.getElementById("worker-phone").innerText = `Phone: ${worker.phone}`;
                             document.getElementById("worker-location").innerText = `Location: ${worker.location}`;
                             document.getElementById("worker-details").style.display = "block";
+
+                            document.getElementById("call-btn").onclick = function () {
+                                window.location.href = `tel:${worker.phone}`;
+                            };
+
+                            document.getElementById("whatsapp-btn").onclick = function () {
+                                window.location.href = `https://wa.me/${worker.phone}?text=Hello%20${worker.name},%20I%20need%20your%20services.`;
+                            };
+
+                            document.getElementById("book-btn").onclick = function () {
+                                fetch(`/book-worker/worker_name=${worker.name}/`, { method: 'POST' })
+                                    .then((response) => response.json())
+                                    .then((data) => {
+                                        alert(data.message);
+                                    })
+                                    .catch((error) => {
+                                        console.error("Error booking worker:", error);
+                                    });
+                            };
                         });
                     });
                 })
