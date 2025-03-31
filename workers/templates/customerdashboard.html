@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Workers Near You</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            text-align: center;
+            padding: 20px;
+        }
+        .search-container {
+            margin-bottom: 20px;
+        }
+        #map {
+            height: 300px;
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+        .worker-card {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px auto;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: none; /* Initially hidden */
+        }
+        .worker-card button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .call-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .whatsapp-btn {
+            background-color: #25D366;
+            color: white;
+        }
+    </style>
+</head>
+<body >
+    <header>
+        <h1>Find Workers Near You</h1>
+    </header>
+    <h2 id="cname">{{ customer }}</h2>
+    <div class="search-container">
+        <form method="GET" action="{% url 'customerdashboard' %}?customer={{ customer }}">
+            <input type="hidden" name="customer" value="{{ customer }}">
+            <input type="text" name="profession" placeholder="Enter profession (e.g., Plumber, Electrician)" value="{{ profession_query }}">
+            <button type="submit">Search Workers</button>
+        </form>
+    </div>
+
+    <div id="map"></div>
+
+    <div id="worker-details" class="worker-card">
+        <h3 id="worker-name"></h3>
+        <p><strong>Profession:</strong> <span id="worker-profession"></span></p>
+        <p><strong>Phone:</strong> <span id="worker-phone"></span></p>
+        <p><strong>Location:</strong> <span id="worker-location"></span></p>
+        <button class="call-btn" id="call-btn">📞 Call Worker</button>
+        <button class="whatsapp-btn" id="whatsapp-btn">💬 Message on WhatsApp</button>
+        <button class="book-btn" id="book-btn">📅 Book Worker</button>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([20.5937, 78.9629], 5); // Default India map
+    
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+    
+        var workers = JSON.parse('{{ workers|safe|escapejs }}');
+        let customerName = "{{ customer|escapejs }}";
+        console.log("Customer Name in JS:", customerName);
+        workers.forEach(function(worker) {
+            console.log(customerName);
+            var marker = L.marker([worker.latitude, worker.longitude]).addTo(map)
+                .bindPopup("<b>" + worker.username + "</b><br>" + worker.profession + "<br>" + worker.location);
+            
+            marker.on('click', function() {
+                document.getElementById('worker-details').style.display = 'block';
+                document.getElementById('worker-name').innerText = worker.username;
+                document.getElementById('worker-profession').innerText = worker.profession;
+                document.getElementById('worker-phone').innerText = worker.phone_number;
+                document.getElementById('worker-location').innerText = worker.location;
+                document.getElementById('call-btn').setAttribute('onclick', "window.location.href='tel:" + worker.phone_number + "'");
+                document.getElementById('whatsapp-btn').setAttribute('onclick', "window.location.href='https://wa.me/" + worker.phone_number + "'");
+    document.getElementById('book-btn').addEventListener('click', function() {
+        fetch("{% url 'book_worker' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({
+                "worker_id": worker.username,
+                "customer_name":customerName,
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Worker booked successfully!");
+            } else {
+                alert(data.error);
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    });
+        });});
+    </script>
+
+</body>
+</html>

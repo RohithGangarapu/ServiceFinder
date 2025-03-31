@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Dashboard</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .service-request {
+            background: white;
+            padding: 15px;
+            margin: 10px auto;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        .service-request p {
+            margin: 5px 0;
+        }
+        .accept-btn, .finish-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .accept-btn:hover, .finish-btn:hover {
+            background-color: #45a049;
+        }
+        #map {
+            display: none;
+            height: 400px;
+            width: 90%;
+            max-width: 600px;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+    <h1>Welcome, {{worker}}!</h1>
+    <h2>Your Service Requests</h2>
+    <div class="service-request">
+    <p><strong>Customer:</strong> {{ req.customer }}</p>
+    <p><strong>Service Type:</strong> {{ req.service_type }}</p>
+    <p><strong>Status:</strong> <span id="status-{{ req.customer }}-{{ req.service_type }}">{{ req.status }}</span></p>  
+            
+</body>
+</html>

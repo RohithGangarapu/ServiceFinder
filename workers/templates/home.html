@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Finder</title>
+    <style>
+        /* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+}
+
+/* Header */
+.header {
+    background-color: #007bff;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.nav a {
+    color: white;
+    text-decoration: none;
+    margin: 0 15px;
+    font-size: 16px;
+}
+
+.auth-buttons .btn,
+.auth-buttons .btn-outline {
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.auth-buttons .btn {
+    background-color: white;
+    color: #007bff;
+    border-radius: 5px;
+}
+
+.auth-buttons .btn-outline {
+    background: none;
+    color: white;
+    border: 2px solid white;
+    border-radius: 5px;
+}
+
+/* Hero Section */
+.hero {
+    background-color: #0056b3;
+    color: white;
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.hero h2 {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.search-box {
+    margin-top: 20px;
+}
+
+.search-box input {
+    width: 300px;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+}
+
+.search-box .btn {
+    padding: 10px 15px;
+    background-color: white;
+    color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Featured Services */
+.featured {
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.services-grid {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.service-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-size: 18px;
+    font-weight: bold;
+    width: 150px;
+    text-align: center;
+}
+
+/* How It Works */
+.how-it-works {
+    background-color: #e9ecef;
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.steps {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.step {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 200px;
+    font-weight: bold;
+}
+
+/* Footer */
+.footer {
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <h1 class="logo">Service Finder</h1>
+        <nav class="nav">
+            <a href="#">Home</a>
+            <a href="#">Services</a>
+            <a href="#">About</a>
+            <a href="#">Contact</a>
+        </nav>
+        <div class="auth-buttons">
+            <a style="text-decoration: none;" href="{% url 'login' %}">Login</button>
+            <a style="text-decoration: none;" href="{% url 'register' %}">Sign Up</button>
+        </div>
+    </header>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <h2>Find the Best Services Near You</h2>
+        <p>Search for skilled professionals in your area</p>
+        <div class="search-box">
+            <input type="text" placeholder="Search for services (e.g., plumber, electrician)">
+            <button class="btn">Search</button>
+        </div>
+    </section>
+    
+    <!-- Featured Services -->
+    <section class="featured">
+        <h2>Popular Services</h2>
+        <div class="services-grid">
+            <div class="service-card">Plumbing</div>
+            <div class="service-card">Electrician</div>
+            <div class="service-card">Mechanic</div>
+        </div>
+    </section>
+    
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <h2>How It Works</h2>
+        <div class="steps">
+            <div class="step">Find Nearby Services</div>
+            <div class="step">Connect with Professionals</div>
+            <div class="step">Get Quick Assistance</div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 Service Finder. All rights reserved.</p>
+    </footer>
+</body>
+</html>

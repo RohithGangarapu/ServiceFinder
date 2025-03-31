@@ -2,13 +2,13 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('customer/register/', views.customer_register, name='customer_register'),
-    path('worker/register/', views.worker_register, name='worker_register'),
-    path('login/', views.user_login, name='login'),
-    path('worker-dashboard/', views.worker_dashboard, name='worker_dashboard'),
-    path('search-workers/', views.search_workers, name='search_workers'),
-     path("accept-order/<str:worker_username>/<str:customer_username>/<str:service_type>/", views.accept_order, name="accept_order"),
-     path('book-worker/worker_name=<str:worker_name>/', views.book_worker, name='book_worker'),
-    path("update-location/", views.update_worker_location, name="update_worker_location"),
-    path("get-locations/<str:worker_username>/", views.get_worker_customer_location, name="get_locations")
-]
+    path('', views.home, name='home'),
+    path('login', views.user_login, name='login'),
+    path('register', views.register, name='register'),
+    path('customerregister', views.customer_register, name='customerregister'),
+    path('workerregister', views.worker_register, name='workerregister'),
+    path('workerdashboard', views.worker_dashboard, name='workerdashboard'),
+    path('customerdashboard', views.customer_dashboard, name='customerdashboard'),
+    path('customerdashboard', views.customer_dashboard, name='customerdashboard'),
+    path('book_worker', views.book_worker, name='book_worker'),
+    ]
