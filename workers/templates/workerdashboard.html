@@ -54,12 +54,43 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 </head>
 <body>
-    <h1>Welcome, {{worker}}!</h1>
+    {% for i in requests %}
+    <h1>Welcome, {{ i.worker.username }}!</h1>
     <h2>Your Service Requests</h2>
     <div class="service-request">
-    <p><strong>Customer:</strong> {{ req.customer }}</p>
-    <p><strong>Service Type:</strong> {{ req.service_type }}</p>
-    <p><strong>Status:</strong> <span id="status-{{ req.customer }}-{{ req.service_type }}">{{ req.status }}</span></p>  
-            
+        <p><strong>Customer:</strong> {{ i.customer.username }}</p>
+        <p><strong>Service Type:</strong> {{ i.worker.profession }}</p>
+        <p><strong>Status:</strong> {{ i.status }}</p> 
+        <button onclick="accept('{{ i.worker.username }}', '{{ i.customer.username }}')">
+            Accept Service
+        </button> 
+    </div>
+{% endfor %}
+
 </body>
+<script>
+    function accept(worker,customer){
+        fetch("{% url 'acceptorder' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({
+                "worker": worker,
+                "customer":customer,
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Service Accepted");
+                location.reload();
+            } else {
+                alert(data.error);
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+</script>
 </html>

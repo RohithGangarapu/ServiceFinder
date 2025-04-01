@@ -61,7 +61,7 @@ def user_login(request):
                return render(request,'customerdashboard.html',{'customer':username})  
         elif user_type == 'worker':
                 if Worker.objects.filter(username=username,password=password).exists():
-                   return render(request,'workerdashboard.html',{'worker':username}) 
+                   return redirect('workerdashboard',worker=username)  
     return render(request, 'login.html', {'error': error})
 
 # Customer Dashboard View
@@ -74,6 +74,24 @@ def customer_dashboard(request):
     workers_list = list(workers.values("username", "latitude", "longitude", "profession", "location","phone_number"))
     return render(request, 'customerdashboard.html', {'workers': json.dumps(workers_list),'customer':customer})
 # Worker Dashboard View
-def worker_dashboard(request):
-    requests = ServiceRequest.objects.filter(worker=request.POST.get('username'))
+def worker_dashboard(request,worker):
+    requests = ServiceRequest.objects.filter(worker=Worker.objects.get(username=worker))
     return render(request, 'workerdashboard.html', {'requests': requests})
+def accept_order(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            worker = data.get("worker")
+            customer=data.get("customer")
+            # Find the service request and update status
+            service_request = ServiceRequest.objects.get(worker=Worker.objects.get(username=worker),customer=Customer.objects.get(username=customer))
+            service_request.status = "Accepted"
+            service_request.save()
+
+            return JsonResponse({"success": "Order accepted successfully!"}, status=200)
+
+        except ServiceRequest.DoesNotExist:
+            return JsonResponse({"error": "Service request not found!"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    return JsonResponse({"error": "Invalid request method"}, status=400)

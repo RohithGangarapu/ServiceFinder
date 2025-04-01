@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Worker Registration</title>
     <style>
-      body {
+        body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
@@ -50,6 +50,13 @@
         .form-container button:hover {
             background-color: #218838;
         }
+        .location-btn {
+            background-color: #007bff;
+            margin-top: 5px;
+        }
+        .location-btn:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -61,11 +68,39 @@
             <input type="password" name="password" placeholder="Password" required>
             <input type="text" name="profession" placeholder="Profession" required>
             <input type="text" name="phone_number" placeholder="Phone Number" required>
-            <input type="text" name="location" placeholder="Location" required>
-            <input type="text" name="latitude" placeholder="Latitude" required>
-            <input type="text" name="longitude" placeholder="Longitude" required>
+            <input type="text" id="location" name="location" placeholder="Location" required>
+            <input type="text" id="latitude" name="latitude" placeholder="Latitude" required>
+            <input type="text" id="longitude" name="longitude" placeholder="Longitude" required>
+            <button type="button" class="location-btn" onclick="getLocation()">Detect Location</button>
             <button type="submit">Register</button>
         </form>
     </div>
+
+<script>
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async function(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lon;
+
+            // Reverse Geocoding to get the location (State)
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+            const data = await response.json();
+            console.log(data,data.address.city)
+            if (data && data.address) {
+                document.getElementById('location').value = data.address.town || data.address.state || "Location Not Found";
+            }
+        }, function(error) {
+            alert("Error getting location: " + error.message);
+        });
+    } else {
+        alert("Geolocation is not supported by this browser.");
+    }
+}
+</script>
+
 </body>
 </html>

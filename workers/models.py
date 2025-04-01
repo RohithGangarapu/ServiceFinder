@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 # Model for Customers (Users searching for workers)
 class Customer(models.Model):
-    username = models.CharField(max_length=128)
+    username = models.CharField(max_length=128,unique=True)
     password = models.CharField(max_length=128)  # Store hashed password
     phone_number = models.CharField(max_length=15, unique=True)
     latitude = models.FloatField(default=0.0)
@@ -10,7 +10,7 @@ class Customer(models.Model):
 
 # Model for Workers (Service Providers)
 class Worker(models.Model):
-    username = models.CharField(max_length=128)
+    username = models.CharField(max_length=128,unique=True)
     password = models.CharField(max_length=128)  # Store hashed password
     profession = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=15, unique=True)
@@ -33,3 +33,7 @@ class ServiceRequest(models.Model):
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['customer', 'worker'], name='unique_service_request')
+        ]
